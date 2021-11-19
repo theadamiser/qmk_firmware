@@ -21,12 +21,24 @@
 
 // WPM Stuff
 static uint8_t  current_wpm = 0;
-static uint16_t wpm_timer   = 0;
+static uint32_t wpm_timer   = 0;
+#ifndef WPM_UNFILTERED
+static uint32_t smoothing_timer = 0;
+#endif
 
-// This smoothing is 40 keystrokes
-static const float wpm_smoothing = WPM_SMOOTHING;
+#define MAX_PERIODS (WPM_SAMPLE_PERIODS)
+#define PERIOD_DURATION (1000 * WPM_SAMPLE_SECONDS / MAX_PERIODS)
+#define LATENCY (100)
+static int8_t  period_presses[MAX_PERIODS] = {0};
+static uint8_t current_period              = 0;
+static uint8_t periods                     = 1;
 
-void set_current_wpm(uint8_t new_wpm) { current_wpm = new_wpm; }
+#if !defined(WPM_UNFILTERED)
+static uint8_t prev_wpm = 0;
+static uint8_t next_wpm = 0;
+#endif
+
+void    set_current_wpm(uint8_t new_wpm) { current_wpm = new_wpm; }
 
 uint8_t get_current_wpm(void) { return current_wpm; }
 
@@ -70,31 +82,61 @@ __attribute__((weak)) uint8_t wpm_regress_count(uint16_t keycode) {
 
 void update_wpm(uint16_t keycode) {
     if (wpm_keycode(keycode)) {
-        if (wpm_timer > 0) {
-            uint16_t latest_wpm = 60000 / timer_elapsed(wpm_timer) / WPM_ESTIMATED_WORD_SIZE;
-            if (latest_wpm > UINT8_MAX) {
-                latest_wpm = UINT8_MAX;
-            }
-            current_wpm += ceilf((latest_wpm - current_wpm) * wpm_smoothing);
-        }
-        wpm_timer = timer_read();
+        period_presses[current_period]++;
     }
 #ifdef WPM_ALLOW_COUNT_REGRESSION
     uint8_t regress = wpm_regress_count(keycode);
     if (regress) {
-        if (current_wpm < regress) {
-            current_wpm = 0;
-        } else {
-            current_wpm -= regress;
-        }
-        wpm_timer = timer_read();
+        period_presses[current_period]--;
     }
 #endif
 }
 
 void decay_wpm(void) {
-    if (timer_elapsed(wpm_timer) > 1000) {
-        current_wpm += (-current_wpm) * wpm_smoothing;
-        wpm_timer = timer_read();
+    int32_t presses = period_presses[0];
+    for (int i = 1; i <= periods; i++) {
+        presses += period_presses[i];
     }
+    if (presses < 0) {
+        presses = 0;
+    }
+    int32_t  elapsed  = timer_elapsed32(wpm_timer);
+    uint32_t duration = (((periods)*PERIOD_DURATION) + elapsed);
+    uint32_t wpm_now  = (60000 * presses) / (duration * WPM_ESTIMATED_WORD_SIZE);
+    wpm_now           = (wpm_now > 240) ? 240 : wpm_now;
+
+    if (elapsed > PERIOD_DURATION) {
+        current_period                 = (current_period + 1) % MAX_PERIODS;
+        period_presses[current_period] = 0;
+        periods                        = (periods < MAX_PERIODS - 1) ? periods + 1 : MAX_PERIODS - 1;
+        elapsed                        = 0;
+        /* if (wpm_timer == 0) { */
+        wpm_timer = timer_read32();
+        /* } else { */
+        /*     wpm_timer += PERIOD_DURATION; */
+        /* } */
+    }
+    if (presses < 2)  // don't guess high WPM based on a single keypress.
+        wpm_now = 0;
+
+#if defined WPM_LAUNCH_CONTROL
+    if (presses == 0) {
+        current_period = 0;
+        periods        = 0;
+        wpm_now        = 0;
+    }
+#endif  // WPM_LAUNCH_CONTROL
+
+#ifndef WPM_UNFILTERED
+    int32_t latency = timer_elapsed32(smoothing_timer);
+    if (latency > LATENCY) {
+        smoothing_timer = timer_read32();
+        prev_wpm        = current_wpm;
+        next_wpm        = wpm_now;
+    }
+
+    current_wpm = prev_wpm + (latency * ((int)next_wpm - (int)prev_wpm) / LATENCY);
+#else
+    current_wpm = wpm_now;
+#endif
 }
