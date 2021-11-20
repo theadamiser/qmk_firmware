@@ -1,8 +1,8 @@
 SRC += \
   $(USER_PATH)/idle.c \
-	$(USER_PATH)/luna.c \
-	$(USER_PATH)/rgb_config.c \
-	$(USER_PATH)/sticky_command.c \
+  $(USER_PATH)/luna.c \
+  $(USER_PATH)/rgb_config.c \
+  $(USER_PATH)/sticky_command.c \
 
 # Elite-C bootloader
 BOOTLOADER = qmk-dfu
