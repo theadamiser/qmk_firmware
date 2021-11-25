@@ -101,6 +101,14 @@ void oled_task_user(void) {
   }
 }
 
+void suspend_wakeup_init_user(void) {
+  idle_suspend_wakeup_init();
+}
+
+void suspend_power_down_user(void) {
+  idle_suspend_power_down();
+}
+
 /*********************************************************************************************/
 /* Main */
 /*********************************************************************************************/
