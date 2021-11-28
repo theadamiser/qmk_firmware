@@ -11,6 +11,7 @@
 /*********************************************************************************************/
 #define C_SPACE LT(_MOVE, KC_SPC)
 #define C_NMSYM OSL(_NUMSYM)
+#define C_FN MO(_FN)
 #define C_SHIFT OSM(MOD_LSFT)
 #define C_ADJST TO(_ADJUST)
 #define C_BASE TO(_BASE)
@@ -32,32 +33,39 @@ enum layers {
   _BASE,
   _MOVE,
   _NUMSYM,
+  _FN,
   _ADJUST
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = LAYOUT(
-     KC_ESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,         KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_MINS,
-     KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,         KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_TAB,
-     KC_LCTL, KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH, _______,
+     KC_ESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,         KC_J,    KC_L,    KC_U,    KC_Y,    KC_MINS, _______,
+     KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,         KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+     KC_LCTL, KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH, C_FN,
                                 KC_LGUI, C_SPACE, KC_ENTER,     C_NMSYM, C_SHIFT, KC_LALT
   ),
   [_MOVE] = LAYOUT(
-     _______, KC_ESC,  CMD_GRV, CMD_TAB, M_BCK,   M_FWD,        KC_PGUP, XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX, C_ADJST,
+     _______, KC_ESC,  CMD_GRV, CMD_TAB, M_BCK,   M_FWD,        KC_PGUP, XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX, _______,
      _______, KC_LSFT, KC_LCTL, KC_LOPT, KC_LCMD, XXXXXXX,      KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,XXXXXXX, _______,
-     _______, M_UNDO,  M_CUT,   M_COPY,  KC_BSPC, M_PASTE,      XXXXXXX, KC_BSPC, KC_DEL,  XXXXXXX, XXXXXXX, _______,
-                                _______, _______, _______,      _______, KC_ENTER,_______
+     _______, M_UNDO,  M_CUT,   M_COPY,  XXXXXXX, M_PASTE,      KC_DEL,  KC_BSPC, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+                                _______, _______, _______,      _______, KC_TAB,  _______
   ),
   [_NUMSYM] = LAYOUT(
-     KC_GRV,  KC_LBRC, KC_7,    KC_8,    KC_9,    KC_RBRC,      XXXXXXX, XXXXXXX, KC_LCBR, KC_RCBR, XXXXXXX, _______,
-     _______, KC_SCLN, KC_4,    KC_5,    KC_6,    KC_EQUAL,     XXXXXXX, KC_RCMD, KC_LPRN, KC_RPRN, KC_RSFT, _______, // KC_ROPT, KC_RCTL
-     _______, KC_0,    KC_1,    KC_2,    KC_3,    KC_BSLS,      XXXXXXX, KC_BSPC, KC_LBRC, KC_RBRC, XXXXXXX, _______,
+     _______, KC_GRV,  KC_7,    KC_8,    KC_9,    KC_MINS,      XXXXXXX, XXXXXXX, KC_LCBR, KC_RCBR, XXXXXXX, _______,
+     _______, KC_SCLN, KC_4,    KC_5,    KC_6,    KC_EQUAL,     XXXXXXX, KC_RCMD, KC_LPRN, KC_RPRN, KC_RSFT, KC_DQUO, // KC_ROPT, KC_RCTL
+     _______, KC_0,    KC_1,    KC_2,    KC_3,    KC_BSLS,      KC_DEL,  KC_BSPC, KC_LBRC, KC_RBRC, XXXXXXX, _______,
+                                _______, _______, _______,      _______, _______, _______
+  ),
+  [_FN] = LAYOUT(
+     _______, XXXXXXX, KC_F7,   KC_F8,   KC_F9,   XXXXXXX,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, C_ADJST,
+     _______, XXXXXXX, KC_F4,   KC_F5,   KC_F6,   XXXXXXX,      XXXXXXX, KC_RCMD, KC_ROPT, KC_RCTL, KC_RSFT, _______,
+     _______, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   XXXXXXX,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
                                 _______, _______, _______,      _______, _______, _______
   ),
   [_ADJUST] = LAYOUT(
      C_BASE,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      _______, RGB_RMOD,RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-     _______, RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TO(_BASE),
+     _______, RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
                                 _______, _______, _______,      _______, _______,_______
   ),
 };
