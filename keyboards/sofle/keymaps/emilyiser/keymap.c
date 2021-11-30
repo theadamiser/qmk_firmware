@@ -89,6 +89,14 @@ void keyboard_post_init_user(void) {
   init_idle();
 }
 
+void suspend_wakeup_init_user(void) {
+  idle_suspend_wakeup_init();
+}
+
+void suspend_power_down_user(void) {
+  idle_suspend_power_down();
+}
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     luna_set_sneaking(layer_state_cmp(state, _MOVE));
     toggle_rgb_config(layer_state_cmp(state, _ADJUST));
