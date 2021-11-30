@@ -109,19 +109,19 @@ void oled_task_user(void) {
   }
 }
 
+/*********************************************************************************************/
+/* Main */
+/*********************************************************************************************/
+void keyboard_post_init_user(void) {
+  init_idle();
+}
+
 void suspend_wakeup_init_user(void) {
   idle_suspend_wakeup_init();
 }
 
 void suspend_power_down_user(void) {
   idle_suspend_power_down();
-}
-
-/*********************************************************************************************/
-/* Main */
-/*********************************************************************************************/
-void keyboard_post_init_user(void) {
-  init_idle();
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
