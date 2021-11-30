@@ -11,9 +11,13 @@
 #define C_MOVE MO(_MOVE)
 #define C_ADJST TO(_ADJUST)
 #define C_BASE TO(_BASE)
+#define C_SYMBOL MO(_SYMBOL) 
 
 #define M_BCK LGUI(KC_LBRC)
 #define M_FWD LGUI(KC_RBRC)
+
+#define M_DESKTOP_RIGHT RCTL(KC_RIGHT)
+#define M_DESKTOP_LEFT RCTL(KC_LEFT)
 
 #define M_UNDO LGUI(KC_Z)
 #define M_COPY LGUI(KC_C)
@@ -23,25 +27,35 @@
 enum layers {
   _BASE,
   _MOVE,
-  _ADJUST
+  _ADJUST,
+  _SYMBOL
 };
+
+bool paste_cmd_active = false;
 
 // https://beta.docs.qmk.fm/using-qmk/simple-keycodes/keycodes
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = LAYOUT( \
     KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, \
     KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_EQL,  \
-    KC_LGUI, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-    KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_MUTE,  _______, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, RGB_HUI, \
-                      KC_LCTL, KC_LOPT, C_MOVE,  KC_SPC,  KC_BSPC,  KC_ENTER,_______, _______, _______, _______ \
+    C_SYMBOL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                      KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
+    KC_LGUI, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_MUTE,  _______, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_BSLS, \
+                      KC_LCTL, KC_LOPT, C_MOVE,  KC_SPC,  KC_BSPC,  OSM(MOD_LSFT), KC_ENTER, _______, _______, _______ \
     ),
 
   [_MOVE] = LAYOUT( \
     C_ADJST, _______, _______, _______, _______, _______,                       _______, _______, _______, _______, _______, _______,\
-    _______, _______, _______, _______, _______, _______,                       _______, _______, KC_UP,   _______, _______, _______,\
-    _______, _______, _______, _______, _______, _______,                       _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,\
-    _______, _______, _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______, _______, _______,\
-                        _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______\
+    _______, _______, _______, _______, _______, _______,                       _______, KC_HOME, KC_UP,   KC_END,  _______, _______,\
+    _______, _______, _______, _______, KC_RSFT, _______,                       _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,\
+    _______, _______, _______, _______, KC_ENTER, _______, _______,     _______, KC_F1,   KC_F2,   KC_F4,   KC_F3, _______, _______,\
+                        _______, _______, _______, _______, _______,   _______, _______, _______, _______, _______\
+    ),
+    [_SYMBOL] = LAYOUT( \
+    _______, _______, _______, _______, _______, _______,                       _______, _______, _______, _______, _______, _______,\
+    _______, _______, _______, KC_LCBR, KC_RCBR, _______,                       _______, _______, _______, _______,  _______, _______,\
+    _______, _______, _______, KC_LPRN, KC_RPRN, _______,                       _______, _______, _______, _______, _______, _______,\
+    _______, _______, _______, KC_LBRC, KC_RBRC, _______, _______,     _______, _______, _______, _______, _______, _______, _______,\
+                        _______, _______, _______, _______, _______,   _______, _______, _______, _______, _______\
     ),
   [_ADJUST] = LAYOUT( \
     C_BASE,  _______, _______, _______, _______, _______,                       _______, _______, _______, _______, _______, _______,\
@@ -82,6 +96,37 @@ void oled_task_user(void) {
   }
 }
 
+
+/*********************************************************************************************/
+/* Roatary Encoder */
+/*********************************************************************************************/
+void process_encoder_paste_command(uint8_t direction) {
+    if (!paste_cmd_active) {
+      paste_cmd_active = true;
+      register_code(KC_LGUI);
+      register_code(KC_LSFT);
+      register_code(KC_V);
+    } else {
+      tap_code(direction);
+    }
+}
+
+bool maybe_clear_paste_command(uint8_t keycode) {
+  if (paste_cmd_active) {
+    if (keycode != KC_ENTER) {
+      tap_code(KC_ESC);
+    }
+    unregister_code(KC_V);
+    unregister_code(KC_LSFT);
+    unregister_code(KC_LGUI);
+    paste_cmd_active = false;
+    if (keycode == KC_ENTER) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /*********************************************************************************************/
 /* Main Hooks */
 /*********************************************************************************************/
@@ -109,6 +154,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_ENTER:
       if (record->event.pressed) {
         luna_bark();
+        return maybe_clear_paste_command(KC_ENTER);
       }
       break;
     case KC_SPC:
@@ -117,21 +163,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       break;
   }
+  maybe_clear_paste_command(keycode);
   return true;
 }
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
   if (index == 0) {
     if (clockwise) {
-      tap_code(KC_VOLU);
+      tap_code16(M_DESKTOP_RIGHT);
     } else {
-      tap_code(KC_VOLD);
+      tap_code16(M_DESKTOP_LEFT);
     }
   } else if (index == 1) {
     if (clockwise) {
-      tap_code(KC_PGDOWN);
+      process_encoder_paste_command(KC_LEFT);
     } else {
-      tap_code(KC_PGUP);
+      process_encoder_paste_command(KC_RIGHT);
     }
   }
   return true;
