@@ -27,5 +27,19 @@
     "python.formatting.provider": "yapf",
     "[json]": {
 	    "editor.formatOnSave": false
-    }
+    },
+    "favorites.resources": [
+        {
+            "filePath": "keyboards/crkbd/keymaps/theadamiser",
+            "group": "Default"
+        },
+        {
+            "filePath": "keyboards/splitkb/aurora/sweep",
+            "group": "Default"
+        },
+        {
+            "filePath": "users/theadamiser",
+            "group": "Default"
+        }
+    ]
 }
