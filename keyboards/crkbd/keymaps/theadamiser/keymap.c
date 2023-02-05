@@ -199,7 +199,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
   }
   if (keycode != CMD_TAB && keycode != CMD_GRV) {
-    maybe_clear_sticky_command(record);
+    maybe_clear_sticky_command(record, keycode);
   }
   return true;
 }
