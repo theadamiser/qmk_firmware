@@ -4,80 +4,81 @@
 #include "idle.h"
 #include "luna.h"
 #include "rgb_config.h"
-#include "sticky_command.h"
+#include "kc_layout.h"
 
 /*********************************************************************************************/
 /* KEYMAP */
 /*********************************************************************************************/
-#define C_SPACE LT(_MOVE, KC_SPC)
-#define C_NMSYM OSL(_NUMSYM)
-#define C_FN MO(_FN)
-#define C_SHIFT OSM(MOD_LSFT)
-#define C_ADJST TO(_ADJUST)
-#define C_BASE TO(_BASE)
+// Layers & Thumbs
+#define KC_MOVSP LT(L_MOVE, KC_SPC)
+#define KC_FN MO(L_FN)
+#define KC_SHIFT OSM(MOD_LSFT)
+#define KC_ADJST TO(L_ADJUST)
+#define KC_BASE TO(L_BASE)
 
-#define M_BCK LGUI(KC_LBRC)
-#define M_FWD LGUI(KC_RBRC)
-
-#define M_UNDO LGUI(KC_Z)
-#define M_COPY LGUI(KC_C)
-#define M_CUT LGUI(KC_X)
-#define M_PASTE LGUI(KC_V)
+// Combos
+#define KC_BCK LGUI(KC_LBRC)
+#define KC_FWD LGUI(KC_RBRC)
+#define KC_UNDO LGUI(KC_Z)
+#define KC_COPY LGUI(KC_C)
+#define KC_CUT LGUI(KC_X)
+#define KC_PASTE LGUI(KC_V)
 
 enum custom_keycodes {
-  CMD_TAB = SAFE_RANGE,
-  CMD_GRV,
+  KC_SYMBS = SAFE_RANGE,
+  KC_CMDEN,
 };
 
 enum layers {
-  _BASE,
-  _MOVE,
-  _NUMSYM,
-  _FN,
-  _ADJUST
+  L_BASE,
+  L_MOVE,
+  L_NUMSYM,
+  L_FN,
+  L_ADJUST
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [_BASE] = LAYOUT(
-     KC_ESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,         KC_J,    KC_L,    KC_U,    KC_Y,    KC_MINS, _______,
-     KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,         KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
-     KC_LCTL, KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,         KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH, C_FN,
-                                KC_LGUI, C_SPACE, KC_ENTER,     C_NMSYM, C_SHIFT, KC_LALT
+  [L_BASE] = KC_LAYOUT(
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+       GESC,  Q,     W,     F,     P,     B,          J,     L,     U,     Y,     MINS,  ____,
+       TAB,   A,     R,     S,     T,     G,          M,     N,     E,     I,     O,     QUOT,
+       LCTL,  Z,     X,     C,     D,     V,          K,     H,     COMM,  DOT,   SLSH,  FN,
+                            ____,  MOVSP, CMDEN,      SYMBS, SHIFT, LALT
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
   ),
-  [_MOVE] = LAYOUT(
-     _______, KC_ESC,  CMD_GRV, CMD_TAB, M_BCK,   M_FWD,        KC_PGUP, XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX, _______,
-     _______, KC_LSFT, KC_LCTL, KC_LOPT, KC_LCMD, XXXXXXX,      KC_PGDN, KC_LEFT, KC_DOWN, KC_RIGHT,XXXXXXX, _______,
-     _______, M_UNDO,  M_CUT,   M_COPY,  XXXXXXX, M_PASTE,      KC_DEL,  KC_BSPC, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-                                _______, _______, _______,      _______, KC_TAB,  _______
+  [L_MOVE] = KC_LAYOUT(
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+       ____,  ESC,   BCK,   FWD,   XXXX,  XXXX,       PGUP,  XXXX,  UP,    XXXX,  XXXX,  ____,
+       ____,  LSFT,  LCTL,  LOPT,  LCMD,  XXXX,       PGDN,  LEFT,  DOWN,  RIGHT, XXXX,  ____,
+       ____,  UNDO,  CUT,   COPY,  XXXX,  PASTE,      DEL,   BSPC,  XXXX,  XXXX,  XXXX,  ____,
+                            ____,  ____,  ____,       BSPC,  ENTER, ____
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
   ),
-  [_NUMSYM] = LAYOUT(
-     _______, KC_GRV,  KC_7,    KC_8,    KC_9,    KC_MINS,      XXXXXXX, XXXXXXX, KC_LCBR, KC_RCBR, XXXXXXX, _______,
-     _______, KC_SCLN, KC_4,    KC_5,    KC_6,    KC_EQUAL,     XXXXXXX, KC_RCMD, KC_LPRN, KC_RPRN, KC_RSFT, KC_DQUO, // KC_ROPT, KC_RCTL
-     _______, KC_0,    KC_1,    KC_2,    KC_3,    KC_BSLS,      KC_DEL,  KC_BSPC, KC_LBRC, KC_RBRC, XXXXXXX, _______,
-                                _______, _______, _______,      _______, _______, _______
+  [L_NUMSYM] = KC_LAYOUT(
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+       ____,  GRV,   7,     8,     9,     MINS,       XXXX,  XXXX,  LCBR,  RCBR,  UNDS,  ____,
+       ____,  SCLN,  4,     5,     6,     EQUAL,      XXXX,  RCMD,  LPRN,  RPRN,  RSFT,  DQUO,
+       ____,  0,     1,     2,     3,     BSLS,       DEL,   BSPC,  LBRC,  RBRC,  XXXX,  ____,
+                            ____,  ____,  ____,       ____,  ____,  ____
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
   ),
-  [_FN] = LAYOUT(
-     _______, XXXXXXX, KC_F7,   KC_F8,   KC_F9,   XXXXXXX,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, C_ADJST,
-     _______, XXXXXXX, KC_F4,   KC_F5,   KC_F6,   XXXXXXX,      XXXXXXX, KC_RCMD, KC_ROPT, KC_RCTL, KC_RSFT, _______,
-     _______, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   XXXXXXX,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
-                                _______, _______, _______,      _______, _______, _______
+  [L_FN] = KC_LAYOUT(
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+       ____,  XXXX,  F7,    F8,    F9,    XXXX,       XXXX,  XXXX,  XXXX,  XXXX,  XXXX,  ADJST,
+       ____,  XXXX,  F4,    F5,    F6,    XXXX,       XXXX,  RCMD,  ROPT,  RCTL,  RSFT,  ____,
+       ____,  XXXX,  F1,    F2,    F3,    XXXX,       XXXX,  XXXX,  XXXX,  XXXX,  XXXX,  ____,
+                            ____,  ____,  ____,       ____,  ____,  ____
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
   ),
-  [_ADJUST] = LAYOUT(
-     C_BASE,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-     _______, RGB_RMOD,RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-     _______, RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD,      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                                _______, _______, _______,      _______, _______,_______
-  ),
+  [L_ADJUST] = KC_LAYOUT(
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+       BASE,  XXXX,  XXXX,  XXXX,  XXXX,  LTOG,       XXXX,  XXXX,  XXXX,  XXXX,  XXXX,  XXXX,
+       ____,  LRMOD, LHUI,  LSAI,  LVAI,  LSPI,       XXXX,  XXXX,  XXXX,  XXXX,  XXXX,  XXXX,
+       ____,  LMOD,  LHUD,  LSAD,  LVAD,  LSPD,       XXXX,  XXXX,  XXXX,  XXXX,  XXXX,  XXXX,
+                            ____,  ____,  ____,       ____,  ____,  ____
+    // ------ ------ ------ ------ ------ ------      ------ ------ ------ ------ ------ ------
+ ),
 };
-
-bool get_ignore_mod_tap_interrupt(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case C_SPACE:
-      return true; // Favor key press
-    default:
-      return false; // Favor layer hold
-  }
-}
 
 /*********************************************************************************************/
 /* OLED */
@@ -131,14 +132,29 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  static bool symbs_pressed = false;
+  static uint16_t symbs_time = 0;
+  static bool cmden_pressed = false;
+  static uint16_t cmden_time = 0;
+
   idle_process_record(record);
+
+  if (symbs_pressed && record->event.pressed) {
+    layer_on(L_NUMSYM);
+    symbs_pressed = false;
+  }
+  if (cmden_pressed && record->event.pressed) {
+    cmden_pressed = false;
+  }
+
   switch (keycode) {
     case KC_BSPC:
       if (record->event.pressed) {
         luna_bark();
       }
       break;
-    case C_SPACE:
+    case KC_MOVSP:
+    case KC_SPACE:
       if (!record->event.pressed) {
         luna_jump();
       }
@@ -148,6 +164,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case CMD_GRV:
       process_sticky_command(record, KC_GRAVE);
+      break;
+    case KC_SYMBS:
+      if (record->event.pressed) {
+        symbs_pressed = true;
+        symbs_time = record->event.time;
+      } else {
+        if (symbs_pressed) {
+          if (TIMER_DIFF_16(record->event.time, symbs_time) < TAPPING_TERM) {
+            register_code(KC_BSPC);
+            unregister_code(KC_BSPC);
+          }
+          symbs_pressed = false;
+        } else {
+          layer_off(L_NUMSYM);
+        }
+      }
+      break;
+    case KC_CMDEN:
+      if (record->event.pressed) {
+        cmden_pressed = true;
+        cmden_time = record->event.time;
+        register_code(KC_LGUI);
+      } else {
+        unregister_code(KC_LGUI);
+        if (cmden_pressed) {
+          if (TIMER_DIFF_16(record->event.time, cmden_time) < TAPPING_TERM) {
+            register_code(KC_ENTER);
+            unregister_code(KC_ENTER);
+          }
+          cmden_pressed = false;
+        }
+      }
       break;
   }
   if (keycode != CMD_TAB && keycode != CMD_GRV) {
